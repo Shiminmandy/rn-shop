@@ -26,7 +26,7 @@ const TabsLayout = () => {
       }}
       >
         <Tabs.Screen
-        name="index" 
+        name="index"  //index is the name of the screen
         options={{ 
             title: 'shop',
             tabBarIcon(props) {
@@ -35,7 +35,7 @@ const TabsLayout = () => {
         }}
         />
         <Tabs.Screen 
-        name="orders" 
+        name="orders"  //orders is the name of the screen
         options={{
           title: 'Orders',
             tabBarIcon(props) {
