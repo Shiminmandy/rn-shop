@@ -27,7 +27,7 @@
  * - imagesUrl 字段为图片地址数组，可用于展示商品轮播图等。
  * - 本文件为模拟数据，实际开发中可替换为后端接口数据。
  */
-import { Order } from './types/order';
+import { Order } from '../types/order';
 
 export const ORDERS: Order[] = [
   {

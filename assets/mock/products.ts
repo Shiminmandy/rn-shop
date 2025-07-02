@@ -26,7 +26,7 @@
  * - 本文件为模拟数据，实际开发中可替换为后端接口数据。
  */
 
-import { Product } from "./types/product";
+import { Product } from "../types/product";
 
 export const PRODUCTS: Product[] = [
     {

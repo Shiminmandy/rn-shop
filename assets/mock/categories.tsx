@@ -24,7 +24,7 @@
  * - 本文件为模拟数据，实际开发中可替换为后端接口数据。
  */
 
-import { Category } from "./types/category";
+import { Category } from "../types/category";
 import { PRODUCTS } from "./products";
 
 export const CATEGORIES: Category[] = [
@@ -33,6 +33,7 @@ export const CATEGORIES: Category[] = [
         slug: 'laptops',
         imageUrl: 'https://images.pexels.com/photos/129208/pexels-photo-129208.jpeg',
         products: PRODUCTS.filter(product => product.category && product.category.slug === 'laptops'),
+        // check product in PRODUCTS has category, then filter the products by category slug
     },
     {
         name: 'Phones',
