@@ -6,7 +6,7 @@ export default function CategoriesLayout() {
   return (
     <Stack>
       <Stack.Screen 
-      name='[slug'
+      name='[slug]'
       options={({navigation}) => ({
         headerShown: true,
         headerLeft: () => (

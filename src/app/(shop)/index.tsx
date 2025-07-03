@@ -1,22 +1,35 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { PRODUCTS } from '../../../assets/mock/products'
+import { ProductListItem } from '../../componets/product-list-item'
+import { ListHeader } from '../../componets/list-header'
 
 const Home = () => {
   return (
     <View>
-      <Text>Homeprovides native primitives
-         to represent screens instead of plain 
-          components To better take advantage of 
-          operating system behavior and optimizations 
-          around screens. This capability is used by 
-          library authors and is unlikely to be used 
-          directly by most app developers. It also
-           provides the native components needed for 
-           React Navigation's</Text>
+      <FlatList
+        data={PRODUCTS}
+        renderItem={({ item }) => 
+        <ProductListItem product={item} />
+        }
+        keyExtractor={item => item.id.toString()} // unique key for each item
+        numColumns={2} // number of columns in the grid
+        ListHeaderComponent={ListHeader} // header component
+        contentContainerStyle={styles.flatListContent}
+        columnWrapperStyle={styles.flatListColumn}
+        style={{paddingHorizontal: 10, paddingVertical: 5, borderWidth: 5, borderColor: 'red'}} // padding for the flat list, this is inline style
+      />
     </View>
   )
 }
 
 export default Home
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  flatListContent: {
+    paddingBottom: 10,
+  },
+  flatListColumn: {
+    justifyContent: 'space-between',
+  },
+})
