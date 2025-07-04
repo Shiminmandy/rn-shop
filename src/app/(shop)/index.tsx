@@ -7,6 +7,7 @@ import { ListHeader } from '../../componets/list-header'
 const Home = () => {
   return (
     <View>
+      {/* products list of all categories */}
       <FlatList
         data={PRODUCTS}
         renderItem={({ item }) => 
