@@ -2,6 +2,11 @@ import { Link, Stack } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import React from 'react';
 
+/**
+ * If you add a +not-found.tsx file to a route directory, 
+ * it will be rendered when a route is not found.
+ * 
+ */
 export default function NotFoundScreen() {
   return (
     <>
