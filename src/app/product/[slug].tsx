@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native'; 
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ImageSourcePropType } from 'react-native'; 
 import { PRODUCTS } from '../../../assets/mock/products'
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 import { useToast } from 'react-native-toast-notifications';
@@ -33,12 +33,40 @@ const ProductDetails = () => {
 
 
     const [quantity, setQuantity] = useState(initialQuantity);
+    const increaseQuantity = () => {
+        if (quantity < (product.maxQuantity ?? Infinity)) {
+            setQuantity(quantity + 1);
+            incrementItem(product.id);
+        }else{
+            toast.show('You have reached the maximum quantity', {
+                type:"warning",
+                placement: "top",
+                duration: 1500,
+            });
+        }
+    }
 
-    const increaseQuantity = () => {}
+    const decreaseQuantity = () => {
+        if (quantity > 1) {
+            setQuantity(quantity - 1);
+            decrementItem(product.id);
+        }
+    }
 
-    const decreaseQuantity = () => {}
-
-    const addToCart = () => {}
+    const addToCart = () => {
+        addItem({
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            quantity,
+            image: product.heroImage.toString(),
+        });
+        toast.show('Item added to cart', {
+            type: "success", 
+            placement: "top",
+            duration: 1500,
+        });
+    }
 
     //set the total price of the product
     const totalPrice = (product.price * quantity).toFixed(2);
@@ -47,7 +75,6 @@ const ProductDetails = () => {
     <View style={styles.container}>
       <Stack.Screen options={{title: product.title}} />
       <Image source={product.heroImage} style={styles.heroImage} />
-
       <View style={{padding: 16, flex: 1}}>
         <Text style={styles.title}>Title: {product.title}</Text>
         <Text style={styles.slug}>Slug: {product.slug}</Text>
@@ -59,14 +86,15 @@ const ProductDetails = () => {
         <FlatList
         data={product.imagesUrl}
         keyExtractor={(item,index) => index.toString()}
-        renderItem={({ item }) => (
-            <Image source={{ uri: item }} style={styles.image} />
+        renderItem={({ item }) => (         
+            <Image source={item as ImageSourcePropType} style={styles.image} />
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.imagesContainer}
         />
 
+        {/* visual feedback by reducing the opacity of the wrapped view when pressed */}
         <View style={styles.buttonContainer}>
             {/* decrease quantity button */}
             <TouchableOpacity style={styles.quantityButton} 
@@ -82,9 +110,18 @@ const ProductDetails = () => {
             {/* increase quantity button */}
             <TouchableOpacity style={styles.quantityButton} 
             onPress={increaseQuantity}
-            disabled={quantity >= 10}
+            disabled={quantity > (product.maxQuantity ?? Infinity)}
             >
                 <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+            style={[
+                styles.addToCartButton,
+                {opacity: quantity > 0 ? 1 : 0.5}
+            ]} 
+            onPress={addToCart}>
+                <Text style={styles.addToCartText}>Add to Cart</Text>
             </TouchableOpacity>
         </View>
         
@@ -133,6 +170,8 @@ const styles = StyleSheet.create({
         height: 100,
         marginRight: 8,
         borderRadius: 8,
+        borderWidth: 5,
+        borderColor: '#ccc',
     },
     buttonContainer:{
         flexDirection: 'row',
