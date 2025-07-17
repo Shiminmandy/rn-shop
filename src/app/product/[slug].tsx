@@ -58,7 +58,7 @@ const ProductDetails = () => {
             id: product.id,
             title: product.title,
             price: product.price,
-            quantity,
+            quantity: quantity,
             image: product.heroImage.toString(),
         });
         toast.show('Item added to cart', {

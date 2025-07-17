@@ -47,7 +47,7 @@ export const useCartStore = create<CartState>((set, get) => ({
             }));
         } else {
             set((state) => ({
-                items: [...state.items, { ...item, quantity: 1 }],
+                items: [...state.items, { ...item, quantity: item.quantity || 1 }],
             }));
         }
     },
