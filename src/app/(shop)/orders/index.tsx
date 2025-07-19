@@ -2,13 +2,15 @@ import { View, Text, StyleSheet, FlatList, ListRenderItem, Pressable } from "rea
 import React from "react";
 import { ORDERS } from "../../../../assets/mock/orders";
 import { Order, OrderStatus } from "../../../../assets/types/order";
-import { Link } from "expo-router";
+import { Link, Stack } from "expo-router";
 
 const statusDisplayText: Record<OrderStatus, string> = {
+  InTransit: 'In Transit',
   Pending: 'Pending',
   Completed: 'Completed',
   Shipped: 'Shipped',
-  InTransit: 'In Transit',
+
+  
 };
 
 const renderItem: ListRenderItem<Order> = ({ item }) => (
@@ -36,7 +38,7 @@ const Orders = () => {
 
   return (
     <View style={styles.container}>
-
+      <Stack.Screen options={{title:'Orders Details'}}/>
       <FlatList
         data={ORDERS}
         keyExtractor={item => item.id.toString()}
