@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState, useEffect } from "react";
+import { PropsWithChildren, useState, useEffect, createContext } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 
@@ -7,6 +7,18 @@ export default function AuthProvider({ children }: PropsWithChildren) {
     const [session, setSession] = useState<Session | null>(null)
     const [user, setUser] = useState(null)
     const [mounting, setMounting] = useState(true)
+
+    type AuthData = {
+        session: Session | null;
+        mounting:boolean;
+        user: any;
+    }
+
+    const AuthContext = createContext<AuthData>({
+        session: null,
+        mounting: true,
+        user: null,
+    })
 
     useEffect(() => {
         const fetchSession = async () => {
@@ -38,5 +50,9 @@ export default function AuthProvider({ children }: PropsWithChildren) {
             setSession(session)
         })
     }, [])
-    return <>{children}</>
+    return (
+        <AuthContext.Provider value={{ session, mounting, user}}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
