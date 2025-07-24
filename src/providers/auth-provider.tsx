@@ -1,6 +1,19 @@
-import { PropsWithChildren, useState, useEffect, createContext } from "react";
+import { PropsWithChildren, useState, useEffect, createContext, useContext } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+
+
+type AuthData = {
+    session: Session | null;
+    mounting:boolean;
+    user: any;
+}
+
+const AuthContext = createContext<AuthData>({
+    session: null,
+    mounting: true,
+    user: null,
+})
 
 export default function AuthProvider({ children }: PropsWithChildren) {
 
@@ -8,17 +21,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
     const [user, setUser] = useState(null)
     const [mounting, setMounting] = useState(true)
 
-    type AuthData = {
-        session: Session | null;
-        mounting:boolean;
-        user: any;
-    }
-
-    const AuthContext = createContext<AuthData>({
-        session: null,
-        mounting: true,
-        user: null,
-    })
+    
 
     useEffect(() => {
         const fetchSession = async () => {
@@ -28,13 +31,13 @@ export default function AuthProvider({ children }: PropsWithChildren) {
 
             setSession(session);
 
-
+            // get user from database if session exists
             if (session) {
                 const {data: user, error } = await supabase
                     .from("users")
                     .select('*')
                     .eq('id', session.user.id)
-                    .single();
+                    .single(); // get single user from database
 
                 if(error){
                     console.error('error',error)
@@ -56,3 +59,5 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         </AuthContext.Provider>
     )
 }
+
+export const useAuth = () => useContext(AuthContext)

@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ImageBackground, TextInput, TouchableOpacity } 
 import { useForm, Controller } from "react-hook-form";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Stack } from "expo-router";
 
 // zod is a library for validating data, runtime validation
 const authSchema = zod.object({
@@ -40,6 +41,7 @@ export default function Auth() {
       style={styles.backgroundImage}
     >
       <View style={styles.overlay} />
+      <Stack.Screen options={{ headerShown: false }} /> {/* hide the header */}
 
       <View style={styles.container}>
         <Text style={styles.title}>Welcome</Text>
@@ -67,7 +69,7 @@ export default function Auth() {
           )}
         />
 
-<Controller
+        <Controller
           control={control}
           name='password'
           render={({
@@ -95,15 +97,15 @@ export default function Auth() {
           style={styles.button}
           onPress={handleSubmit(signIn)}
           disabled={formState.isSubmitting}
-          >
-            <Text style={styles.buttonText}>Sign In</Text>
-          </TouchableOpacity>
+        >
+          <Text style={styles.buttonText}>Sign In</Text>
+        </TouchableOpacity>
 
         {/* sign up button */}
         <TouchableOpacity
-        style={[styles.button,styles.signUpButton]}
-        onPress={handleSubmit(signUp)}
-        disabled={formState.isSubmitting}
+          style={[styles.button, styles.signUpButton]}
+          onPress={handleSubmit(signUp)}
+          disabled={formState.isSubmitting}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
