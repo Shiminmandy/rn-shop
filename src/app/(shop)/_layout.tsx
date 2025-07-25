@@ -15,8 +15,12 @@ const TabsLayout = () => {
 
   const { session, mounting } = useAuth();
 
-  if(mounting) return <ActivityIndicator />;
-  if(!session) return <Redirect href="/auth" />;
+  if(mounting) return (
+
+      <ActivityIndicator/>
+
+  );
+  if(!session) return <Redirect href='/auth' />;
 
   return (
     <SafeAreaView edges={["top","bottom","left","right"]} style={styles.INamedsafeArea}>

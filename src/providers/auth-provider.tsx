@@ -25,10 +25,14 @@ export default function AuthProvider({ children }: PropsWithChildren) {
 
     useEffect(() => {
         const fetchSession = async () => {
+
+            // get session from supabase
+            // session including user, access token, refresh token
             const {
                 data: { session },
             } = await supabase.auth.getSession();
 
+            // set session to state
             setSession(session);
 
             // get user from database if session exists
