@@ -3,10 +3,10 @@ import React from 'react'
 import { PRODUCTS } from '../../../assets/mock/products'
 import { ProductListItem } from '../../componets/product-list-item'
 import { ListHeader } from '../../componets/list-header'
-import { useAuth } from '../../providers/auth-provider'
+//import { useAuth } from '../../providers/auth-provider'
 
 const Home = () => {
-  const {user} = useAuth();
+  //const {user} = useAuth();
   
   return (
     

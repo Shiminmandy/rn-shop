@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import { ToastProvider } from "react-native-toast-notifications";
 import AuthProvider from "../providers/auth-provider";
+import QueryProvider from "../providers/query-provider";
 
 export default function RootLayout() {
   return (
     <ToastProvider>
       <AuthProvider>
+        <QueryProvider>
         <Stack>
           <Stack.Screen
             name="(shop)"
@@ -28,6 +30,7 @@ export default function RootLayout() {
             options={{ presentation: "modal", title: "Shopping Cart" }}
           />
         </Stack>
+        </QueryProvider>
       </AuthProvider>
     </ToastProvider>
 
