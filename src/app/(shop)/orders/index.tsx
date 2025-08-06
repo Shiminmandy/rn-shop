@@ -1,30 +1,36 @@
-import { View, Text, StyleSheet, FlatList, ListRenderItem, Pressable } from "react-native";
+import { View, Text, StyleSheet, FlatList, ListRenderItem, Pressable, ActivityIndicator } from "react-native";
 import React from "react";
 import { ORDERS } from "../../../../assets/mock/orders";
 import { Order, OrderStatus } from "../../../../assets/types/order";
 import { Link, Stack } from "expo-router";
+import { Tables } from "../../../types/database.types";
+import { getMyOrders } from "../../../api/api";
+import { format } from "date-fns";
 
-const statusDisplayText: Record<OrderStatus, string> = {
-  InTransit: 'In Transit',
-  Pending: 'Pending',
-  Completed: 'Completed',
-  Shipped: 'Shipped',
+// only for mock data
+// const statusDisplayText: Record<OrderStatus, string> = {
+//   InTransit: 'In Transit',
+//   Pending: 'Pending',
+//   Completed: 'Completed',
+//   Shipped: 'Shipped',
 
   
-};
+// };
 
-const renderItem: ListRenderItem<Order> = ({ item }) => (
+const renderItem: ListRenderItem<Tables<'order'>> = ({ item }) => (
   <Link href={`/orders/${item.slug}`} asChild>
     <Pressable style={styles.orderContainer}>
       <View style={styles.orderContent}>
         <View style={styles.orderDetailsContainer}>
-          <Text style={styles.orderItem}>{item.item}</Text>
-          <Text style={styles.orderDetails}>{item.details}</Text>
-          <Text style={styles.orderDate}>{item.date}</Text>
+          <Text style={styles.orderItem}>{item.slug}</Text>
+          <Text style={styles.orderDetails}>{item.description}</Text>
+          <Text style={styles.orderDate}>
+            {format(new Date(item.created_at), 'MMM d, yyyy')}
+            </Text>
         </View>
         <View style={[styles.statusBadge, styles[`statusBadge_${item.status}`]]}>
           <Text style={styles.statusText}>
-            {statusDisplayText[item.status]}
+            {item.status.toUpperCase()}
           </Text>
         </View>
       </View>
@@ -35,12 +41,23 @@ const renderItem: ListRenderItem<Order> = ({ item }) => (
 
 const Orders = () => {
 
+  const {data: orders, error, isLoading} = getMyOrders();
+  if(isLoading){
+    return <ActivityIndicator/>;
+  }
+
+  if(error || !orders){
+    return <Text>Error: {error?.message || 'An error occured while fetching data'}</Text>;
+  }
+  if(orders.length === 0){
+    return <Text>No orders created yet</Text>;
+  }
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{title:'Orders Details'}}/>
       <FlatList
-        data={ORDERS}
+        data={orders || []}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
       />
@@ -50,7 +67,7 @@ const Orders = () => {
 
 export default Orders;
 
-const styles = StyleSheet.create({
+const styles: {[key: string]: any} = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,

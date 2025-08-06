@@ -31,7 +31,7 @@ const ProductDetails = () => {
 
     // if the product is already in the cart, set the quantity to the initial quantity
     // if the product is not in the cart, set the quantity to 1
-    const initialQuantity = cartItem ? cartItem.quantity : 1;
+    const initialQuantity = cartItem ? cartItem.quantity : 0;
 
     const [quantity, setQuantity] = useState(initialQuantity);
 

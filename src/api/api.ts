@@ -100,139 +100,139 @@ export const getCategoryAndProducts = (categorySlug: string) => {
     })
 }
 
-// export const getMyOrders = () => {
-//     // get the user id from the auth provider
-//     // 嵌套解构赋值 nested destructuring
-//     // 等价于：
-//     // const authData = useAuth();
-//     // const user = authData.user;
-//     // const id = user.id;
-//     // 可以直接使用id，同时解构: const { user: userData, user: {id} } = useAuth();
-//     const { user: {id},} = useAuth();
+export const getMyOrders = () => {
+    // get the user id from the auth provider
+    // 嵌套解构赋值 nested destructuring
+    // 等价于：
+    // const authData = useAuth();
+    // const user = authData.user;
+    // const id = user.id;
+    // 可以直接使用id，同时解构: const { user: userData, user: {id} } = useAuth();
+    const { user: {id},} = useAuth();
 
-//     return useQuery({
-//         queryKey: ['orders', id],
-//         queryFn: async () => {
-//             const {data, error} = await supabase
-//             .from('order')
-//             .select('*')
-//             .order('created_at', {ascending: false})
-//             .eq('user', id);
+    return useQuery({
+        queryKey: ['orders', id],
+        queryFn: async () => {
+            const {data, error} = await supabase
+            .from('order')
+            .select('*')
+            .order('created_at', {ascending: false})
+            .eq('user', id);
 
-//             if(error) {
-//                 throw new Error('An Error occured while fetching orders: ' + error.message);
-//             }
+            if(error || !data) {
+                throw new Error('An Error occured while fetching orders: ' + error.message);
+            }
 
-//             return data;
-//         }
-//     })
-// }
+            return data;
+        }
+    })
+}
 
-// export const createOrder = () => {
-//     const {
-//         user:{id},
-//     } = useAuth();
+export const createOrder = () => {
+    const {
+        user:{id},
+    } = useAuth();
 
-//     const slug = generateOrderSlug();
-//     const queryClient = useQueryClient();
+    const slug = generateOrderSlug();
+    const queryClient = useQueryClient();
 
-//     return useMutation({
-//         async mutationFn({ totalPrice}: {totalPrice: number}){
-//             const {data, error} = await supabase
-//             .from('order')
-//             .insert({
-//                 slug,
-//                 user: id,
-//                 totalPrice,
-//                 status: 'pending',
-//             })
-//             .select('*')
-//             .single();
+    return useMutation({
+        async mutationFn({ totalPrice}: {totalPrice: number}){
+            const {data, error} = await supabase
+            .from('order')
+            .insert({
+                slug,
+                user: id,
+                totalPrice,
+                status: 'pending',
+            })
+            .select('*')
+            .single();
 
-//             if(error) {
-//                 throw new Error('An Error occured while creating order: ' + error.message);
-//             }
+            if(error) {
+                throw new Error('An Error occured while creating order: ' + error.message);
+            }
 
-//             return data;
-//         },
+            return data;
+        },
 
-//         async onSuccess() {
-//             await queryClient.invalidateQueries({queryKey: ['orders', id]});
-//         }
-//     })
+        async onSuccess() {
+            await queryClient.invalidateQueries({queryKey: ['orders', id]});
+        }
+    })
 
-// }
+}
 
-// export const createOrderItem = () => {
-//     return useMutation({
-//         async mutationFn(
-//             insertData: {
-//                 orderId: number;
-//                 productId: number;
-//                 quantity: number;
-//             }[]
-//         ){
-//             const {data, error} = await supabase
-//             .from('order_item')
-//             .insert(
-//                 insertData.map(({orderId,quantity, productId}) => ({
-//                     order: orderId,
-//                     product: productId,
-//                     quantity,
-//                 }))
-//             )
-//             .select('*');
+export const createOrderItem = () => {
+    return useMutation({
+        async mutationFn(
+            insertData: {
+                orderId: number;
+                productId: number;
+                quantity: number;
+            }[]
+        ){
+            const {data, error} = await supabase
+            .from('order_item')
+            .insert(
+                insertData.map(({orderId,quantity, productId}) => ({
+                    order: orderId,
+                    product: productId,
+                    quantity,
+                }))
+            )
+            .select('*');
 
-//             const productQuantities = insertData.reduce(
-//                 (acc, {productId, quantity}) => {
-//                     if (!acc[productId]){
-//                         acc[productId] = 0;
-//                     }
-//                     acc[productId] += quantity;
-//                     return acc;
-//                 },
-//                 {} as Record<number, number>
-//             );
+            const productQuantities = insertData.reduce(
+                (acc, {productId, quantity}) => {
+                    if (!acc[productId]){
+                        acc[productId] = 0;
+                    }
+                    acc[productId] += quantity;
+                    return acc;
+                },
+                {} as Record<number, number>
+            );
 
-//             await Promise.all(Object.entries(productQuantities).map(
-//                 async ([productId, totalQuantity]) => {
-//                     supabase.rpc('decrement_product_quantity', {
-//                         product_id: Number(productId),
-//                         quantity: totalQuantity,
-//                     });
-//                 }
-//             ));
+            await Promise.all(Object.entries(productQuantities).map(
+                async ([productId, totalQuantity]) => {
+                    supabase.rpc('decrement_product_quantity', {
+                        product_id: Number(productId),
+                        quantity: totalQuantity,
+                    });
+                }
+            ));
 
-//             if(error) {
-//                 throw new Error('An Error occured while creating order items: ' + error.message);
-//             }
-//         }
-//     })
-// }
+            if(error) {
+                throw new Error('An Error occured while creating order items: ' + error.message);
+            }
+        }
+    })
+}
 
-// export const getMyOrder = (slug: string) => {
-//     const {
-//         user: {id},
-//     } = useAuth();
+export const getMyOrder = (slug: string) => {
+    const {
+        user: {id},
+    } = useAuth();
 
-//     return useQuery({
-//         queryKey: ['orders', slug],
-//         queryFn: async () => {
-//             const {data, error} = await supabase
-//             .from('order')
-//             .select('*, order_itms: order_item(*, products:product(*))')
-//             .eq('slug', slug)
-//             .eq('user', id)
-//             .single();
+    return useQuery({
+        queryKey: ['orders', slug],
+        queryFn: async () => {
+            const {data, error} = await supabase
+            .from('order')
+            .select('*, order_itms: order_item(*, products:product(*))')
+            .eq('slug', slug)
+            .eq('user', id)
+            .single();
 
-//             if(error || !data) {
-//                 throw new Error('An Error occured while fetching order: ' + error?.message);
-//             }
+            if(error || !data) {
+                throw new Error('An Error occured while fetching order: ' + error?.message);
+            }
 
-//             return data;
-//         }
-//     })
-// }
+            return data;
+        }
+    })
+}
 
 /**
  * createOrderItem 函数详细说明

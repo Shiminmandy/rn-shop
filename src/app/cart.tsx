@@ -1,70 +1,104 @@
 import { View, Text, StyleSheet, Alert, StatusBar, TouchableOpacity, FlatList, Image } from "react-native";
 import { useCartStore } from "../store/cart-store";
 import { Platform } from "react-native";
+import { createOrder, createOrderItem } from "../api/api";
+
+type CartItemType = {
+  id: number;
+  title: string;
+  heroImage: string;
+  price: number;
+  quantity: number;
+  maxQuantity: number;
+}
+
+type CartItemProps = {
+  item: CartItemType;
+  onRemove: (id: number) => void;
+  onIncrement: (id: number) => void;
+  onDecrement: (id: number) => void;
+}
+
+const CartItem = ({
+  item,
+  onRemove,
+  onIncrement,
+  onDecrement
+}: CartItemProps) => {
+  return (
+    <View style={styles.cartItem}>
+      <Image source={{uri: item.heroImage}} style={styles.itemImage} />
+      <View style={styles.itemDetails}>
+        <Text style={styles.itemTitle}>{item.title}</Text>
+        <Text style={styles.itemPrice}>${item.price}</Text>
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity 
+          onPress={() => onDecrement(item.id)}
+          style={styles.quantityButton}
+          >
+            <Text style={styles.quantityButtonText}>-</Text>
+          </TouchableOpacity> 
+
+          <Text style={styles.itemQuantity}>{item.quantity}</Text>
+
+          <TouchableOpacity 
+          onPress={() => onIncrement(item.id)}
+          style={styles.quantityButton}
+          >
+            <Text style={styles.quantityButtonText}>+</Text>
+          </TouchableOpacity> 
+
+        </View>
+      </View>
+
+      <TouchableOpacity
+          onPress={() => onRemove(item.id)}
+          style={styles.removeButton}
+          >
+            <Text style={styles.removeButtonText}>Remove</Text>
+          </TouchableOpacity>
+    </View>
+  );
+}
 
 export default function Cart() {
-  type CartItemType = {
-    id: number;
-    title: string;
-    heroImage: string;
-    price: number;
-    quantity: number;
-    maxQuantity: number;
-  }
 
-  type CartItemProps = {
-    item: CartItemType;
-    onRemove: (id: number) => void;
-    onIncrement: (id: number) => void;
-    onDecrement: (id: number) => void;
-  }
+  const { items, removeItem, incrementItem, decrementItem, getTotalPrice, resetCart } = useCartStore();
 
-  const CartItem = ({
-    item,
-    onRemove,
-    onIncrement,
-    onDecrement
-  }: CartItemProps) => {
-    return (
-      <View style={styles.cartItem}>
-        <Image source={{uri: item.heroImage}} style={styles.itemImage} />
-        <View style={styles.itemDetails}>
-          <Text style={styles.itemTitle}>{item.title}</Text>
-          <Text style={styles.itemPrice}>${item.price}</Text>
-          <View style={styles.quantityContainer}>
-            <TouchableOpacity 
-            onPress={() => onDecrement(item.id)}
-            style={styles.quantityButton}
-            >
-              <Text style={styles.quantityButtonText}>-</Text>
-            </TouchableOpacity> 
+  {/* mutateAsync: 异步执行, 返回一个promise */}
+  const {mutateAsync: createSupabaseOrder} = createOrder(); 
+  const {mutateAsync: createSupabaseOrderItem} = createOrderItem();
 
-            <Text style={styles.itemQuantity}>{item.quantity}</Text>
+  const handleCheckout = async () => {
+    const totalPrice = parseFloat(getTotalPrice());
 
-            <TouchableOpacity 
-            onPress={() => onIncrement(item.id)}
-            style={styles.quantityButton}
-            >
-              <Text style={styles.quantityButtonText}>+</Text>
-            </TouchableOpacity> 
-
-          </View>
-        </View>
-
-        <TouchableOpacity
-            onPress={() => onRemove(item.id)}
-            style={styles.removeButton}
-            >
-              <Text style={styles.removeButtonText}>Remove</Text>
-            </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const { items, removeItem, incrementItem, decrementItem, getTotalPrice } = useCartStore();
-
-  const handleCheckout = () => {
-    Alert.alert('Proceeding to Checkout', `Total amount: $${getTotalPrice()}`);
+    try{
+      await createSupabaseOrder(
+        {totalPrice},
+        {
+          onSuccess: (data) => {
+            createSupabaseOrderItem(
+              items.map((item) => ({
+                orderId: data.id,
+                productId: item.id,
+                quantity: item.quantity,
+              })),
+              {
+                onSuccess: () => {
+                  Alert.alert('Success', 'Order created successfully');
+                  resetCart();
+                }
+              }
+            )
+          },
+          onError: (error) => {
+            Alert.alert('Error', error.message);
+          }
+        }
+      );
+    } catch (error) {
+      Alert.alert('Error', 'An error occured while creating order');
+    }
   };
 
 
