@@ -11,9 +11,10 @@ import { PRODUCTS } from "../../assets/mock/products";
 type CartItemType = {
     id: number;
     title: string;
-    image: string;
+    heroImage: string;
     price: number;
     quantity: number;
+    maxQuantity: number;
 }
 
 type CartState = {
@@ -37,10 +38,7 @@ export const useCartStore = create<CartState>((set, get) => ({
                 items: state.items.map((i) => i.id === item.id
                     ? {
                         ...i,
-                        quantity: Math.min(i.quantity + item.quantity,
-                            PRODUCTS.find((p) => p.id === item.id)?.maxQuantity ||
-                            i.quantity
-                        ),
+                        quantity: Math.min(i.quantity + item.quantity, i.maxQuantity),
                     }
                     : i
                 ),
@@ -56,14 +54,12 @@ export const useCartStore = create<CartState>((set, get) => ({
     })),
     incrementItem: (id: number) =>
         set((state) => {
-            const product = PRODUCTS.find((p) => p.id === id);
 
-            if (!product) return state;
 
 
             return {
                 items: state.items.map((item) =>
-                    item.id === id && item.quantity < (product.maxQuantity || 100)
+                    item.id === id && item.quantity < (item.maxQuantity || 100)
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 ),

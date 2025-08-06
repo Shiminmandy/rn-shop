@@ -6,8 +6,10 @@ import { CATEGORIES } from '../../assets/mock/categories'
 import { FlatList } from 'react-native'
 import { useCartStore } from '../store/cart-store'
 import { supabase } from '../lib/supabase'
+import { Tables } from '../types/database.types'
 
-export const ListHeader = () => {
+export const ListHeader = ({categories}: {categories: Tables<'category'>[]}) => {
+
 
     const { getItemCount } = useCartStore();
 
@@ -70,7 +72,7 @@ export const ListHeader = () => {
                 <Text style={styles.sectionTitle}>Categories</Text>
                 {/* categories list */}
                 <FlatList
-                data={CATEGORIES}
+                data={categories || []}
                 renderItem={({item}) => (
                     <Link href={`/categories/${item.slug}`} asChild>
                         <Pressable style={styles.category}>

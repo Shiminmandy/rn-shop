@@ -1,9 +1,10 @@
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
 import { CATEGORIES } from '../../../assets/mock/categories'  
 import { PRODUCTS } from '../../../assets/mock/products'
 import { ProductListItem } from '../../componets/product-list-item'
+import { getCategoryAndProducts } from '../../api/api'
 
 const Category = () => {
 
@@ -11,18 +12,29 @@ const Category = () => {
 
   // find() is used to find the first element in the array that matches the condition
   // the condition is that 'category.slug === slug '
-  const category = CATEGORIES.find((category: any) => category.slug === slug);
+  //const category = CATEGORIES.find((category: any) => category.slug === slug);
+  const {data, error, isLoading} = getCategoryAndProducts(slug);
 
-  if (!category) return <Redirect href='/404'/>
+  if(isLoading) {
+    return <ActivityIndicator/>;
+  }
+
+  if(error || !data) {
+    return <Text>Error: {error?.message || 'An error occured'}</Text>;
+  }
+
+  if (!data.category || !data.products) return <Redirect href='/404'/>
 
   // filter() is used to create a new array with all elements that match the condition
   // the condition is that 'product.category.slug === category.slug'
-  const products = PRODUCTS.filter((product: any) => product.category.slug === category.slug);
+  //const products = PRODUCTS.filter((product: any) => product.category.slug === category.slug);
 
+  const {category, products} = data;
+  
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{title: category.name}} />
-      <Image source={{uri: category.imageUrl}} style={styles.categoryImage} />
+      <Stack.Screen options={{title: data.category.name}} />
+      <Image source={{uri: data.category.imageUrl}} style={styles.categoryImage} />
       {/* products list of the chosen category */}
       <FlatList
         data={products}

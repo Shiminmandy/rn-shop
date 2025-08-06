@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ImageSourcePropType } from 'react-native'; 
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ImageSourcePropType, ActivityIndicator } from 'react-native'; 
 import { PRODUCTS } from '../../../assets/mock/products'
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 import { useToast } from 'react-native-toast-notifications';
 import { useCartStore } from '../../store/cart-store';
 import { useState } from 'react';
-
+import { getProduct } from '../../api/api';
 
 
 const ProductDetails = () => {
@@ -12,12 +12,14 @@ const ProductDetails = () => {
     const { slug } = useLocalSearchParams<{slug: string}>();
     const toast = useToast();
 
+    const {data: product, error, isLoading} = getProduct(slug);
     //slug：usually comes from the url, the unique identifier for the product (such as "iphone-14")
-    const product = PRODUCTS.find((product) => product.slug === slug);
+    //const product = PRODUCTS.find((product) => product.slug === slug);
 
-    if (!product) {
-        return <Redirect href="/404" />;
+    if(isLoading) {
+        return <ActivityIndicator/>;
     }
+
 
     //items: the list of items in the cart
     // addItem: add an item to the cart
@@ -25,14 +27,18 @@ const ProductDetails = () => {
     // decrementItem: decrement the quantity of an item
     const {items, addItem, incrementItem, decrementItem} = useCartStore();
     
-    const cartItem = items.find(item => item.id === product.id);
+    const cartItem = items.find(item => item.id === product?.id);
 
     // if the product is already in the cart, set the quantity to the initial quantity
     // if the product is not in the cart, set the quantity to 1
     const initialQuantity = cartItem ? cartItem.quantity : 1;
 
-
     const [quantity, setQuantity] = useState(initialQuantity);
+
+    if(error || !product) {
+        return <Text>Error: {error?.message || 'An error occured'}</Text>;
+    }
+    
     const increaseQuantity = () => {
         if (quantity < (product.maxQuantity ?? Infinity)) {
             setQuantity(quantity + 1);
@@ -59,7 +65,8 @@ const ProductDetails = () => {
             title: product.title,
             price: product.price,
             quantity: quantity,
-            image: product.heroImage.toString(),
+            heroImage: product.heroImage,
+            maxQuantity: product.maxQuantity,
         });
         toast.show('Item added to cart', {
             type: "success", 
@@ -74,7 +81,7 @@ const ProductDetails = () => {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{title: product.title}} />
-      <Image source={product.heroImage} style={styles.heroImage} />
+      <Image source={{uri: product.heroImage}} style={styles.heroImage} />
       <View style={{padding: 16, flex: 1}}>
         <Text style={styles.title}>Title: {product.title}</Text>
         <Text style={styles.slug}>Slug: {product.slug}</Text>
