@@ -220,7 +220,7 @@ export const getMyOrder = (slug: string) => {
         queryFn: async () => {
             const {data, error} = await supabase
             .from('order')
-            .select('*, order_itms: order_item(*, products:product(*))')
+            .select('*, order_items: order_item(*, products:product(*))')
             .eq('slug', slug)
             .eq('user', id)
             .single();
