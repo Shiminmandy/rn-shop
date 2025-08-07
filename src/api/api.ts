@@ -32,6 +32,7 @@ import { useAuth } from "../providers/auth-provider";
 import { generateOrderSlug } from "../utils/utils";
 import { Database } from '../types/database.types';
 
+
 export const getProductsAndCategories = () => {
     return useQuery({
         queryKey: ['products', 'categories'], // check if cache is valid
@@ -196,7 +197,7 @@ export const createOrderItem = () => {
 
             await Promise.all(Object.entries(productQuantities).map(
                 async ([productId, totalQuantity]) => {
-                    supabase.rpc('decrement_product_quantity', {
+                    await supabase.rpc('decrement_product_quantity', {
                         product_id: Number(productId),
                         quantity: totalQuantity,
                     });
@@ -283,4 +284,67 @@ export const getMyOrder = (slug: string) => {
  * - 创建2个订单项记录
  * - 产品1库存减少2个
  * - 产品2库存减少1个
+ */
+
+
+/**
+ * getMyOrder 函数详细说明
+ * 
+ * 功能：获取指定订单的详细信息
+ * 
+ * 参数说明：
+ * slug: string;  // 订单的唯一标识符
+ * 
+ * 查询结果
+ * {
+    // order 表字段
+    id: 1,
+    slug: "order-abc-123",
+    status: "pending",
+    totalPrice: 2997,
+    user: "user-123",
+    created_at: "2024-01-01T00:00:00Z",
+    description: "My order",
+    
+    // 关联的订单项
+    order_itms: [
+        {
+            id: 1,
+            order: 1,
+            product: 1,
+            quantity: 2,
+            created_at: "2024-01-01T00:00:00Z",
+            
+            // 关联的产品信息
+            products: {
+                id: 1,
+                title: "iPhone 15",
+                price: 999,
+                heroImage: "https://example.com/iphone.jpg",
+                slug: "iphone-15",
+                category: 1,
+                maxQuantity: 10,
+                created_at: "2024-01-01T00:00:00Z"
+            }
+        },
+        {
+            id: 2,
+            order: 1,
+            product: 2,
+            quantity: 1,
+            created_at: "2024-01-01T00:00:00Z",
+            
+            products: {
+                id: 2,
+                title: "MacBook Pro",
+                price: 1999,
+                heroImage: "https://example.com/macbook.jpg",
+                slug: "macbook-pro",
+                category: 1,
+                maxQuantity: 5,
+                created_at: "2024-01-01T00:00:00Z"
+            }
+        }
+    ]
+}
  */
