@@ -1,0 +1,14 @@
+{
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.unstable": true,
+  "deno.config": "./stripe-checkout/deno.json",
+  "deno.importMap": "./stripe-checkout/deno.json",
+  "deno.codeLens.references": true,
+  "deno.codeLens.referencesAllFunctions": true,
+  
+  // 在这个目录禁用 TypeScript 功能
+  "typescript.validate.enable": false,
+  "typescript.suggest.enabled": false,
+  "typescript.preferences.includePackageJsonAutoImports": "off"
+}

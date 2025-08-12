@@ -7,7 +7,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { Stripe } from "npm:stripe@^17.0.0"
 console.log("Hello from Functions!")
 
-const stripe = Stripe(Deno.env.get('STRIPE_SECRET_KEY'),{
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'), {
   // This is needed to use the Fetch API rather than relying on the Node http
   // package
   httpClient: Stripe.createFetchHttpClient(),
@@ -22,12 +22,13 @@ Deno.serve(async (req) => {
     currency: "usd",
   });
 
-  const data = {
-    message: `Hello ${name}!`,
+  const response = {
+    paymentIntent: paymentIntent.client_secret,
+    publishableKey: Deno.env.get('STRIPE_PUBLISHABLE_KEY'),
   }
 
   return new Response(
-    JSON.stringify(data),
+    JSON.stringify(response),
     { headers: { "Content-Type": "application/json" } },
   )
 })
